@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+
+# Application data
+lab_equipment.db
+lab_checkout.db
+*.db
+
+# Secrets
+.secret_key
+.env
+
+# Uploaded files
+static/uploads/
+
+# Editor / OS
+.DS_Store
+*.swp
+.claude/

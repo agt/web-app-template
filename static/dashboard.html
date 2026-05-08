@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Lab Equipment Checkout</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<!-- 2.4.1: Skip navigation -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- 1.4.10: Hamburger toggle (visible only at narrow viewports) -->
+<button class="sidebar-toggle" id="sidebar-toggle"
+  aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+  <i class="fa-solid fa-bars" aria-hidden="true"></i>
+</button>
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <!-- 1.1.1: decorative icon -->
+      <h2><i class="fa-solid fa-flask-vial" aria-hidden="true"></i> Lab Checkout</h2>
+      <p>Equipment Management</p>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <div class="nav-label" aria-hidden="true">Navigation</div>
+      <!-- 2.1.1: use <button> for section switchers (no href = not keyboard-reachable as <a>) -->
+      <button class="nav-link active" data-section="equipment">
+        <i class="fa-solid fa-microchip" aria-hidden="true"></i> Equipment
+      </button>
+      <button class="nav-link" data-section="my-checkouts">
+        <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> My Checkouts
+      </button>
+      <div id="admin-link" class="hidden">
+        <div class="nav-label" aria-hidden="true">Admin</div>
+        <a class="nav-link" href="/admin.html">
+          <i class="fa-solid fa-gauge" aria-hidden="true"></i> Admin Panel
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info" id="user-name">—</div>
+      <!-- 1.4.3: use .user-role / .user-email-text classes for explicit contrast-safe colours -->
+      <div class="user-role" id="user-role">—</div>
+      <span class="user-email-text" id="user-email"></span>
+      <button class="btn btn-sm btn-secondary" id="logout-btn" style="margin-top:.6rem;width:100%">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" id="main-content">
+
+    <!-- Equipment section -->
+    <div id="equipment" class="section active">
+      <div class="page-header">
+        <h1>
+          <i class="fa-solid fa-microchip" aria-hidden="true"></i> Available Equipment
+          <span class="badge badge-secondary" id="eq-count"
+            aria-label="equipment count" style="font-size:.9rem;margin-left:.4rem">0</span>
+        </h1>
+      </div>
+      <div id="equipment-grid" class="equipment-grid" role="list">
+        <p class="text-muted text-sm">Loading…</p>
+      </div>
+    </div>
+
+    <!-- My Checkouts section -->
+    <div id="my-checkouts" class="section">
+      <div class="page-header">
+        <h1><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> My Checkouts</h1>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Equipment</th>
+                <th scope="col">Checked Out</th>
+                <th scope="col">Due</th>
+                <th scope="col">Returned</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="my-checkouts-body">
+              <tr><td colspan="6" class="text-muted text-sm">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Checkout Modal
+     4.1.2: role="dialog", aria-modal, aria-labelledby
+     3.3.1: role="alert" on error container
+-->
+<div id="checkout-modal" class="modal-backdrop hidden"
+  role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="checkout-modal-title">
+        <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Check Out Equipment
+      </h3>
+      <!-- 1.1.1: aria-label names the icon-only button -->
+      <button class="btn btn-icon" id="cancel-checkout-x" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="checkout-alert" class="alert alert-danger hidden" role="alert"></div>
+      <p class="mb-2">You are checking out: <strong id="checkout-eq-name"></strong></p>
+      <div class="form-group" id="checkout-duration-row">
+        <!-- 4.1.2: for= associates label with the range input -->
+        <label for="checkout-duration">Checkout duration</label>
+        <div class="duration-row">
+          <input type="range" id="checkout-duration" min="1" max="7" value="7">
+          <span class="duration-val" id="checkout-duration-val" aria-live="polite">7 days</span>
+        </div>
+        <p class="form-hint" id="checkout-duration-hint">
+          Choose how many days you need (up to the policy maximum).
+        </p>
+      </div>
+      <div class="form-group">
+        <label for="checkout-notes">Notes <span class="sr-only">(optional)</span></label>
+        <textarea id="checkout-notes" class="form-control"
+          placeholder="Any notes about the checkout…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-checkout">Cancel</button>
+      <button class="btn btn-primary" id="confirm-checkout">
+        <i class="fa-solid fa-check" aria-hidden="true"></i>Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+<script>
+  /* Responsive sidebar toggle */
+  const _toggle  = document.getElementById('sidebar-toggle');
+  const _sidebar = document.getElementById('sidebar');
+  const _overlay = document.getElementById('sidebar-overlay');
+  if (_toggle) {
+    _toggle.addEventListener('click', () => {
+      const open = _sidebar.classList.toggle('open');
+      _toggle.setAttribute('aria-expanded', open);
+      _overlay.classList.toggle('open', open);
+      _overlay.setAttribute('aria-hidden', !open);
+    });
+    _overlay.addEventListener('click', () => {
+      _sidebar.classList.remove('open');
+      _toggle.setAttribute('aria-expanded', 'false');
+      _overlay.classList.remove('open');
+      _overlay.setAttribute('aria-hidden', 'true');
+      _toggle.focus();
+    });
+  }
+
+  /* Close modal on backdrop click or ✕ button */
+  document.getElementById('cancel-checkout-x').addEventListener('click', () => closeModal('checkout-modal'));
+</script>
+</body>
+</html>

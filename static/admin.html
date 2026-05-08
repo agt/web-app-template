@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Lab Equipment Checkout</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<!-- 2.4.1: Skip navigation -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- 1.4.10: Hamburger toggle -->
+<button class="sidebar-toggle" id="sidebar-toggle"
+  aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+  <i class="fa-solid fa-bars" aria-hidden="true"></i>
+</button>
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h2><i class="fa-solid fa-flask-vial" aria-hidden="true"></i> Lab Checkout</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav class="sidebar-nav" aria-label="Admin navigation">
+      <div class="nav-label" aria-hidden="true">Admin</div>
+      <!-- 2.1.1: <button> for section switches -->
+      <button class="nav-link active" data-section="equipment">
+        <i class="fa-solid fa-microchip" aria-hidden="true"></i> Equipment
+      </button>
+      <button class="nav-link" data-section="checkouts">
+        <i class="fa-solid fa-list-check" aria-hidden="true"></i> All Checkouts
+      </button>
+      <button class="nav-link" data-section="users">
+        <i class="fa-solid fa-users" aria-hidden="true"></i> Users
+      </button>
+      <div class="nav-label" aria-hidden="true">Other</div>
+      <a class="nav-link" href="/dashboard.html">
+        <i class="fa-solid fa-gauge" aria-hidden="true"></i> User Dashboard
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info" id="user-name">—</div>
+      <div class="user-role">Administrator</div>
+      <span class="user-email-text" id="user-email"></span>
+      <button class="btn btn-sm btn-secondary" id="logout-btn" style="margin-top:.6rem;width:100%">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" id="main-content">
+
+    <!-- Stats row — each tile navigates to the corresponding section -->
+    <div class="stats-grid" aria-label="Summary statistics">
+      <button class="stat-card primary" data-section="equipment"
+        aria-label="View equipment section">
+        <div class="stat-val" id="stat-equipment">—</div>
+        <div class="stat-label">Equipment Items</div>
+      </button>
+      <button class="stat-card" data-section="checkouts"
+        aria-label="View all checkouts section">
+        <div class="stat-val" id="stat-active">—</div>
+        <div class="stat-label">Active Checkouts</div>
+      </button>
+      <button class="stat-card danger" data-section="checkouts"
+        aria-label="View all checkouts section (includes overdue)">
+        <div class="stat-val" id="stat-overdue">—</div>
+        <div class="stat-label">Overdue</div>
+      </button>
+      <button class="stat-card" data-section="users"
+        aria-label="View users section">
+        <div class="stat-val" id="stat-users">—</div>
+        <div class="stat-label">Registered Users</div>
+      </button>
+    </div>
+
+    <!-- Equipment section -->
+    <div id="section-equipment" class="section active">
+      <div class="page-header">
+        <h1><i class="fa-solid fa-microchip" aria-hidden="true"></i> Equipment</h1>
+        <button class="btn btn-primary" id="add-equipment-btn">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Add Equipment
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Location</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="equipment-tbody">
+              <tr><td colspan="5" class="text-muted text-sm">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Checkouts section -->
+    <div id="section-checkouts" class="section">
+      <div class="page-header">
+        <h1><i class="fa-solid fa-list-check" aria-hidden="true"></i> All Checkouts</h1>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Equipment</th>
+                <th scope="col">User</th>
+                <th scope="col">Checked Out</th>
+                <th scope="col">Due</th>
+                <th scope="col">Returned</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="checkouts-tbody">
+              <tr><td colspan="7" class="text-muted text-sm">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users section -->
+    <div id="section-users" class="section">
+      <div class="page-header">
+        <h1><i class="fa-solid fa-users" aria-hidden="true"></i> Users</h1>
+        <button class="btn btn-primary" id="add-user-btn">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Add User
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="5" class="text-muted text-sm">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ Admin Checkout Modal ══════════════════════════════════════════════════ -->
+<div id="admin-checkout-modal" class="modal-backdrop hidden"
+  role="dialog" aria-modal="true" aria-labelledby="admin-checkout-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="admin-checkout-title">
+        <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+        Check Out on Behalf of User
+      </h3>
+      <button class="btn btn-icon" id="admin-checkout-close" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="admin-checkout-alert" class="alert alert-danger hidden" role="alert"></div>
+      <p class="mb-2">Equipment: <strong id="admin-checkout-eq-name"></strong></p>
+
+      <div class="form-group">
+        <label for="admin-checkout-user">User <span aria-hidden="true" style="color:var(--danger)">*</span></label>
+        <select id="admin-checkout-user" class="form-control" required aria-required="true">
+          <option value="">— select a user —</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="admin-checkout-duration-row">
+        <label for="admin-checkout-duration">Checkout duration</label>
+        <div class="duration-row">
+          <input type="range" id="admin-checkout-duration" min="1" max="7" value="7">
+          <span class="duration-val" id="admin-checkout-duration-val" aria-live="polite">7 days</span>
+        </div>
+        <p class="form-hint">Up to the policy maximum for this equipment.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="admin-checkout-notes">Notes <span class="sr-only">(optional)</span></label>
+        <textarea id="admin-checkout-notes" class="form-control"
+          placeholder="Reason, special instructions…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-admin-checkout">Cancel</button>
+      <button class="btn btn-primary" id="confirm-admin-checkout">
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Confirm Checkout
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Equipment Modal ══════════════════════════════════════════════════════
+     4.1.2: role="dialog", aria-modal, aria-labelledby
+     3.3.1: role="alert" on error container
+-->
+<div id="eq-modal" class="modal-backdrop hidden"
+  role="dialog" aria-modal="true" aria-labelledby="eq-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="eq-modal-title">Add Equipment</h3>
+      <!-- 1.1.1: aria-label names the icon-only close button -->
+      <button class="btn btn-icon" id="eq-modal-close" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="eq-alert" class="alert alert-danger hidden" role="alert"></div>
+      <input type="hidden" id="eq-id">
+      <form id="eq-form">
+        <div class="form-group">
+          <!-- 1.3.1: aria-hidden on decorative * / aria-required on input -->
+          <label for="eq-name">Name <span aria-hidden="true" style="color:var(--danger)">*</span></label>
+          <input id="eq-name" type="text" class="form-control"
+            placeholder="e.g. Oscilloscope (Rigol DS1054Z)"
+            required aria-required="true">
+        </div>
+        <div class="form-group">
+          <label for="eq-description">Description</label>
+          <textarea id="eq-description" class="form-control"
+            placeholder="Brief description of the equipment…"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="eq-location">Location</label>
+          <input id="eq-location" type="text" class="form-control"
+            placeholder="e.g. Bench 1, Tool Cabinet A">
+        </div>
+        <div id="eq-active-row" class="form-group hidden">
+          <label style="display:flex;align-items:center;gap:.5rem;font-weight:400;cursor:pointer">
+            <input type="checkbox" id="eq-is-active" checked> Active (uncheck to deactivate)
+          </label>
+        </div>
+      </form>
+
+      <!-- Photo upload — only shown when editing an existing item -->
+      <div id="eq-photo-section" class="hidden" style="margin-top:.25rem">
+        <hr style="margin:.75rem 0;border-color:var(--border)">
+        <!-- 4.1.2: use <p> not <label> for section heading (not associated with any control) -->
+        <p style="font-size:.85rem;font-weight:600;margin-bottom:.5rem">
+          <i class="fa-solid fa-camera" aria-hidden="true"></i> Equipment Photo
+        </p>
+        <div class="photo-upload-area" id="photo-drop-area">
+          <img id="photo-preview" class="photo-preview hidden" alt="">
+          <div class="photo-placeholder" id="photo-placeholder">
+            <i class="fa-solid fa-image" aria-hidden="true"></i>
+            No photo uploaded
+          </div>
+          <div class="flex gap-1" style="justify-content:center;flex-wrap:wrap">
+            <label class="btn btn-outline btn-sm" style="cursor:pointer">
+              <i class="fa-solid fa-upload" aria-hidden="true"></i> Upload Photo
+              <input type="file" id="photo-file-input"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                style="display:none" onchange="handlePhotoSelect(this)">
+            </label>
+            <button class="btn btn-sm btn-secondary" id="remove-photo-btn" onclick="removePhoto()">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove
+            </button>
+          </div>
+        </div>
+        <div id="photo-alert" class="alert alert-danger hidden" role="alert" style="margin-top:.5rem"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-eq">Cancel</button>
+      <button class="btn btn-primary" id="save-eq">
+        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Policy Modal ══════════════════════════════════════════════════════════ -->
+<div id="policy-modal" class="modal-backdrop hidden"
+  role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="policy-modal-title">
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i> Checkout Policy
+      </h3>
+      <button class="btn btn-icon" id="policy-modal-close" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="policy-alert" class="alert alert-danger hidden" role="alert"></div>
+      <p class="mb-2 text-sm text-muted">
+        Equipment: <strong id="policy-eq-name"></strong>
+      </p>
+
+      <!-- 1.3.1: fieldset + legend groups the day checkboxes -->
+      <div class="form-group">
+        <fieldset>
+          <legend>Allowed checkout days</legend>
+          <div class="days-grid">
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="0" checked><span>Mon</span></label>
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="1" checked><span>Tue</span></label>
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="2" checked><span>Wed</span></label>
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="3" checked><span>Thu</span></label>
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="4" checked><span>Fri</span></label>
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="5" checked><span>Sat</span></label>
+            <label class="day-check"><input type="checkbox" class="day-checkbox" value="6" checked><span>Sun</span></label>
+          </div>
+          <p class="form-hint">Users may only initiate a checkout on these days.</p>
+        </fieldset>
+      </div>
+
+      <div class="form-group">
+        <label for="policy-max-days">Maximum checkout duration (days)</label>
+        <input id="policy-max-days" type="number" class="form-control"
+          min="1" max="365" value="7" style="max-width:120px">
+      </div>
+
+      <!-- 1.3.1: fieldset + legend groups the allowed-users radio buttons -->
+      <div class="form-group">
+        <fieldset>
+          <legend>Allowed users</legend>
+          <div class="allowed-toggle">
+            <label><input type="radio" name="allowed-type" id="allowed-all"      value="all"      checked> All users</label>
+            <label><input type="radio" name="allowed-type" id="allowed-specific" value="specific">         Specific users</label>
+          </div>
+          <div id="allowed-specific-wrap" class="hidden">
+            <label for="allowed-users-select" class="sr-only">Select allowed users</label>
+            <select id="allowed-users-select" class="form-control" multiple></select>
+            <p class="form-hint">Hold Ctrl / ⌘ to select multiple users.</p>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-policy">Cancel</button>
+      <button class="btn btn-primary" id="save-policy">
+        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Policy
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ User Modal ════════════════════════════════════════════════════════════ -->
+<div id="user-modal" class="modal-backdrop hidden"
+  role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="user-modal-title">Add User</h3>
+      <button class="btn btn-icon" id="user-modal-close" aria-label="Close dialog">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="user-alert" class="alert alert-danger hidden" role="alert"></div>
+      <input type="hidden" id="user-id">
+      <form id="user-form">
+        <div class="form-group">
+          <label for="user-email">
+            Email <span aria-hidden="true" style="color:var(--danger)">*</span>
+          </label>
+          <input id="user-email" type="email" class="form-control"
+            placeholder="user@lab.local" autocomplete="off"
+            required aria-required="true">
+        </div>
+        <div class="form-group">
+          <label for="user-fullname">
+            Full Name <span aria-hidden="true" style="color:var(--danger)">*</span>
+          </label>
+          <input id="user-fullname" type="text" class="form-control"
+            placeholder="Jane Doe"
+            required aria-required="true">
+        </div>
+        <div class="form-group">
+          <label for="user-role">Role</label>
+          <select id="user-role" class="form-control">
+            <option value="user">User</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="user-password">Password</label>
+          <input id="user-password" type="password" class="form-control"
+            placeholder="••••••••" autocomplete="new-password">
+          <p class="form-hint" id="user-password-hint">Required for new users.</p>
+        </div>
+        <div id="user-active-row" class="form-group hidden">
+          <label style="display:flex;align-items:center;gap:.5rem;font-weight:400;cursor:pointer">
+            <input type="checkbox" id="user-is-active" checked> Active
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-user">Cancel</button>
+      <button class="btn btn-primary" id="save-user">
+        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin.js"></script>
+<script>
+  /* Responsive sidebar toggle */
+  const _toggle  = document.getElementById('sidebar-toggle');
+  const _sidebar = document.getElementById('sidebar');
+  const _overlay = document.getElementById('sidebar-overlay');
+  if (_toggle) {
+    _toggle.addEventListener('click', () => {
+      const open = _sidebar.classList.toggle('open');
+      _toggle.setAttribute('aria-expanded', open);
+      _overlay.classList.toggle('open', open);
+      _overlay.setAttribute('aria-hidden', !open);
+    });
+    _overlay.addEventListener('click', () => {
+      _sidebar.classList.remove('open');
+      _toggle.setAttribute('aria-expanded', 'false');
+      _overlay.classList.remove('open');
+      _overlay.setAttribute('aria-hidden', 'true');
+      _toggle.focus();
+    });
+  }
+
+  /* Wire up static close buttons using the shared closeModal helper */
+  document.getElementById('admin-checkout-close').addEventListener('click', () => closeModal('admin-checkout-modal'));
+  document.getElementById('eq-modal-close').addEventListener('click',       () => closeModal('eq-modal'));
+  document.getElementById('policy-modal-close').addEventListener('click',   () => closeModal('policy-modal'));
+  document.getElementById('user-modal-close').addEventListener('click',     () => closeModal('user-modal'));
+</script>
+</body>
+</html>

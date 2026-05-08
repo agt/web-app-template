@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Lab Equipment Checkout</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="login-page">
+  <div class="login-card">
+    <!-- 1.1.1: purely decorative logo icon -->
+    <div class="logo" aria-hidden="true"><i class="fa-solid fa-flask-vial"></i></div>
+    <h1>Lab Equipment Checkout</h1>
+    <p class="subtitle">Sign in to your account</p>
+
+    <!-- 3.3.1: role="alert" so screen readers announce errors when injected -->
+    <div id="login-alert" class="alert alert-danger hidden" role="alert"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" class="form-control"
+          placeholder="you@lab.local"
+          autocomplete="email"
+          required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" class="form-control"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required>
+      </div>
+      <button id="login-btn" type="submit" class="btn btn-primary w-full" style="margin-top:.5rem">
+        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign In
+      </button>
+    </form>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>
